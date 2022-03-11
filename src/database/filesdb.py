@@ -2,7 +2,7 @@ class FilesDB:
     def __init__(self):
         pass
 
-    def exists_collection(self, collection_id:str):
+    def exists_collection(self, collection_id:str) -> bool:
         pass
 
     def create_collectoin(self, collection_id:str):

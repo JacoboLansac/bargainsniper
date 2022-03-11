@@ -1,4 +1,4 @@
-from .filesdb import FilesDB
+from .database import Database
 
 
 class Dao:
@@ -6,40 +6,53 @@ class Dao:
     ADDRESS = 'address'
 
     def __init__(self):
-        self.db = FilesDB()
+        self.db = Database()
 
-    def get_collectoin_slug(self, collection_id: str) -> str:
-        if self._detect_if_slug_or_address(collection_id) == self.SLUG:
-            return collection_id
+    def get_collectoin_slug(self, collection: str) -> str:
+        if self._detect_if_slug_or_address(collection) == self.SLUG:
+            return collection
         else:
-            return self.address_to_slug(collection_id)
+            return self._address_to_slug(collection)
 
-    def get_collectoin_address(self, collection_id: str) -> str:
-        if self._detect_if_slug_or_address(collection_id) == self.ADDRESS:
-            return collection_id
+    def get_collectoin_address(self, collection: str) -> str:
+        if self._detect_if_slug_or_address(collection) == self.ADDRESS:
+            return collection
         else:
-            return self.slug_to_address(collection_id)
+            return self._slug_to_address(collection)
 
-    def _detect_if_slug_or_address(self, collection_id: str) -> str:
-        if collection_id.startswith('0x'):
+    def collection_id(self, address) -> str:
+        pass
+
+    def is_collection_available(self, collection) -> bool:
+        collection_id = self.collection_id(self.get_collection_address(collection))
+        return self.db.exists_collection(collection_id)
+
+    def _detect_if_slug_or_address(self, collection: str) -> str:
+        if collection.startswith('0x'):
             return self.ADDRESS
         else:
             return self.SLUG
 
-    def get_token_metadata(self, collection_id: str, tokenid: int):
+    def get_token_metadata(self, collection: str, tokenid: int):
         pass
 
-    def save_token_metadata(self, metadata:dict, collection_id: str, tokenid: int):
+    def save_token_metadata(self, metadata: dict, collection: str, tokenid: int):
         pass
 
-    def update_token_metadata(self, new_metadata:dict, collection_id:str, tokenid:int):
+    def update_token_metadata(self, new_metadata: dict, collection: str, tokenid: int):
         pass
 
-    def get_collection_address(self, collection_id: str) -> str:
+    def get_collection_address(self, collection: str) -> str:
         pass
 
-    def slug_to_address(self, slug: str) -> str:
+    def get_token_rarity_rank(self, collection: str, tokenid: int):
         pass
 
-    def address_to_slug(self, collection_address: str) -> str:
+    def get_token_fair_eth_price_estimation(self, collection: str, tokenid: int):
+        pass
+
+    def _slug_to_address(self, slug: str) -> str:
+        pass
+
+    def _address_to_slug(self, collection_address: str) -> str:
         pass
