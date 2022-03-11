@@ -2,12 +2,18 @@
 
 ## Description
 
-A bot to detect under-priced NFTs from Opensea market place. The under-price criteria is decided by compared the listing
+An API service to detect under-priced NFTs from Opensea market place. The under-price criteria is decided by compared the listing
 price with an estimated fair price in eth which compares each listing with the entire collection.
 
-### API endpoints
+## Motivation
 
-The end product is an API that offers the following end-points:
+Many times, an asset is listed at an underprcied valuation but we miss it just because the price is slightly above floor price
+This API aims to give users the chance of sniping these underpriced items by looking at some more complex
+metrics relating price and rarity ranking. 
+
+## API endpoints
+
+The API offers the following end-points:
 
 #### Rarity rank
 
