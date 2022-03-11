@@ -7,7 +7,6 @@ app = Flask(__name__)
 dao = Dao()
 
 
-
 @app.route("/api/token/rarity-rank/<collection_id>/<tokenid>", methods=['GET'])
 def get_token_rarity_rank(collection_id: str, tokenid: int):
     try:
@@ -47,7 +46,7 @@ def is_collection_available(collection_id: str):
 
 @app.route("/api/collection/request/<collection_id>/", methods=['POST'])
 def request_collection_initialization(collection_id: str):
-    #todo: trigger download collection metadata
-    #todo: trigger download of all collection listings from opensea
-    #todo: trigger collection tracking
+    # todo: trigger download collection metadata
+    # todo: trigger download of all collection listings from opensea
+    # todo: trigger collection tracking
     pass
