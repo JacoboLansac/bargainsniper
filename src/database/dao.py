@@ -48,7 +48,7 @@ class Dao:
     def get_token_rarity_rank(self, collection: str, tokenid: int):
         pass
 
-    def get_token_fair_eth_price_estimation(self, collection: str, tokenid: int):
+    def get_token_fair_eth_price_estimation(self, collection: str, tokenid: int, listing_price:float):
         pass
 
     def _slug_to_address(self, slug: str) -> str:
