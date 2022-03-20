@@ -19,25 +19,25 @@ The API offers the following end-points:
 
 Gets the rarity rank of a collection
 
-      GET: /api/token/rarity-rank/<collection_id>/
+      GET: /api/token/rarity-rank/<collection>/<tokenid>
 
 #### Estimated fair price
 
 Gets the estimated fair price in eth of a token
 
-      GET: /api/token/fair-eth-price/<collection_id>/<tokenid>/
+      GET: /api/token/fair-eth-price/<collection>/<tokenid>/
 
 #### Bargain factor
 
 Get the esitmated bargain factor of a tokenid (fair price to listing price)
 
-      GET: /api/token/bargain-factor/<collection_id>/<tokenid>/
+      GET: /api/token/bargain-factor/<collection>/<tokenid>/
 
 #### Collection availability
 
-Asks if a collection is currently available, meaning that it is being tracked currently by our databases
+Asks if a collection is currently available in the API, meaning that it is being tracked currently by our databases
 
-      GET: /api/collection/is-available/<collection_id>/
+      GET: /api/collection/is-available/<collection>/
 
 #### Request new collection
 
@@ -46,9 +46,9 @@ isdisabled until authentication system is setup.
 
       POST: /api/collection/request/<collection_id>/
 
-### Authenticatoin
+### Authentication
 
-To be defined.
+TBC.
 
 ## Installation
 
@@ -58,4 +58,5 @@ To be defined.
 
 ### Opensea API
 
+https://docs.opensea.io/reference/api-overview
 https://docs.opensea.io/reference/retrieving-a-single-asset
