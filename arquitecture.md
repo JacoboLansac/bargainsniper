@@ -4,7 +4,7 @@
 - downloading tokens attributes (requests / openseaAPI)
 - calculate rarity based on attributes appearance
 - store rarity and rank in my databases
-- estimate fair valuations using log(price/listings) & log(rarity)
+- estimate fair valuations
 - for new listings, calculate bargain-ratio and valuation-ratio
 
 ## Database 
