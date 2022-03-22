@@ -37,7 +37,7 @@ class Dao:
         pass
 
     def save_token_metadata(self, metadata: dict, collection: str, tokenid: int):
-        pass
+        print(f"Saving: {collection}:{tokenid} metadata")
 
     def update_token_metadata(self, new_metadata: dict, collection: str, tokenid: int):
         pass
