@@ -13,13 +13,13 @@ import requests
 
 
 class Downloader:
-    def __init__(self, collection_contract: str, contract_abi: dict):
+    def __init__(self, contract_address: str, contract_abi: dict):
         self.dao = Dao()
         self.web3 = Web3(Web3.HTTPProvider(infura_https()))
         self.logger = getLogger(self.__class__.__name__)
-        self.collection_contract = collection_contract
+        self.contract_address = contract_address
         self.contract_abi = contract_abi
-        self.contract = self.web3.eth.contract(address=self.collection_contract, abi=self.contract_abi)
+        self.contract = self.web3.eth.contract(address=self.contract_address, abi=self.contract_abi)
 
     def _connection_check(self):
         if not self.web3.isConnected():
@@ -77,7 +77,7 @@ class Downloader:
 
             batch_metadata = self.download_batch_metadata_from_contract(offset=offset, batchsize=batchsize)
             for tokenid, token_metadata in batch_metadata:
-                self.dao.save_token_metadata(token_metadata, self.collection_contract, tokenid)
+                self.dao.save_token_metadata(token_metadata, self.contract_address, tokenid)
 
             # Download time estimations
             average_token_download_time = round((time.time() - btime) / (offset + batchsize), 3)

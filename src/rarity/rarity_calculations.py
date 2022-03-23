@@ -30,7 +30,7 @@ class RarityCalculator:
 
         attributes = []
         for tokenid in collection.token_ids():
-            token_metadata = self.dao.get_token_metadata(collection_id, tokenid)
+            token_metadata = self.dao.read_token_metadata(collection_id, tokenid)
 
             #todo: extract attributes
 
