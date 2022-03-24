@@ -6,40 +6,64 @@
 - estimate fair valuations using log(price/listings) & log(rarity)
 - for new listings, calculate bargain-ratio and valuation-ratio
 """
+import pandas as pd
+import logging
+import numpy as np
 from src.database import Dao
-from src.downloader import Downloader
 from src.database import OpenseaCollection
+import config
+from src.database.metadata import Metadata
+from src.database.rarityinfo import RarityInfo
 
 
 class RarityCalculator:
-    def __init__(self):
+    TRAIT_FREQ = 'trait_freq'
+    TRAIT_LOG_FREQ = 'trait_log_freq'
+
+    def __init__(self, contract_address: str):
         self.dao = Dao()
-        self.downloader = Downloader()
+        self.contract_address = contract_address
+        self.logger = logging.getLogger(self.__class__.__name__)
 
-
-    def initialize_collection(self, colleciton_id:str) -> bool:
-        # todo: perhaps this shold throw an asyncronous thread in the background
-
-        # This may take a while
-        self.downloader.download_collection_metadata_from_contract(colleciton_id)
-
-        # When the download is done, we can calculate rarities
-
-    def calculate_rarities(self, collection_id:str):
-        collection = OpenseaCollection(collection_id)
-
-        attributes = []
+    def get_traitsdf(self) -> pd.DataFrame:
+        collection = OpenseaCollection(self.contract_address)
+        collection_attributes = []
         for tokenid in collection.token_ids():
-            token_metadata = self.dao.read_token_metadata(collection_id, tokenid)
+            token_metadata = self.dao.read_token_metadata(self.contract_address, tokenid)
+            if token_metadata is None:
+                continue
+            for attribute in token_metadata.attributes:
+                attr = attribute.copy()
+                attr.update({Metadata.TOKENID: tokenid})
+                collection_attributes.append(attr)
 
-            #todo: extract attributes
+        traitsdf = pd.DataFrame(collection_attributes)
+        traitsdf['count'] = 1
+        traitsdf.set_index([Metadata.TRAIT_TYPE, Metadata.TRAIT_VALUE], inplace=True)
+        return traitsdf
 
-        #todo: compute rarity
-        #todo: save rarities update document in database
+    def estimate_rarities(self, traitsdf: pd.DataFrame):
+        n_unique_tokens = len(set(traitsdf[Metadata.TOKENID]))
+        trait_freqs = traitsdf.groupby([Metadata.TRAIT_TYPE, Metadata.TRAIT_VALUE])['count'].sum() / n_unique_tokens
+        # traitsdf[self.TRAIT_FREQ] = trait_freqs
+        traitsdf[self.TRAIT_LOG_FREQ] = np.log(trait_freqs)
+        # Rarities is the product of all probabilities (lower product, more rarity)
+        # np.log(traitsdf.groupby(Metadata.TOKENID)[self.TRAIT_FREQ].apply(np.prod))
+        raritiesdf = traitsdf.groupby(Metadata.TOKENID)[self.TRAIT_LOG_FREQ].sum().to_frame(RarityInfo.LOGPROBABILITY)
+        raritiesdf.sort_values(by=RarityInfo.LOGPROBABILITY, inplace=True)
+        raritiesdf[RarityInfo.RARITYRANK] = np.arange(1, len(raritiesdf) + 1)
+        raritiesdf.sort_index(inplace=True)
+        return raritiesdf
 
-        self.dao.update_token_metadata(token_metadata)
+    def run(self):
+        self.logger.debug(f"Collecting traits from database")
+        traitsdf = self.get_traitsdf()
 
+        self.logger.info(f"Computing rarities")
+        raritiesdf = self.estimate_rarities(traitsdf)
 
+        self.logger.info(f"Saving rarities in database")
+        for tokenid, tokeninfo in raritiesdf.iterrows():
+            self.dao.save_token_rarity(tokeninfo.to_dict(), self.contract_address, tokenid)
 
-
-
+        self.logger.info(f"Rarities processing done.")

@@ -1,1 +1,1 @@
-from rarity_calculations import RarityCalculator
+from .rarity_calculations import RarityCalculator

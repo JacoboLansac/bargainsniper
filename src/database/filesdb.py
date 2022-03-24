@@ -22,7 +22,7 @@ class FilesDB:
             return False
         else:
             try:
-                json.dump(document, open(document_path, 'w'))
+                json.dump(document, open(document_path, 'w'), indent=2)
                 return True
             except:
                 self.logger.exception(f"Could not save document: {document_path}")
@@ -30,11 +30,14 @@ class FilesDB:
 
     def read_document(self, directory_id: str, document_key: (str, int)) -> Optional[dict]:
         document_path = self._document_path(directory_id, document_key)
-        try:
-            return json.load(open(document_path, 'r'))
-        except:
-            self.logger.exception(f"Could not read document: {document_path}")
-            return None
+        if path.isfile(document_path):
+            try:
+                return json.load(open(document_path, 'r'))
+            except:
+                self.logger.exception(f"Could not read document: {document_path}")
+                return None
+        self.logger.error(f"Document not existing: {document_path}")
+        return None
 
     def exists_directory(self, directory_id: str) -> bool:
         return path.isdir(self._directory_path(directory_id))

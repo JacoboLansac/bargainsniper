@@ -1,11 +1,16 @@
 from .database import Database
+from .metadata import Metadata
+from .rarityinfo import RarityInfo
 from logging import getLogger
+from typing import Optional
 
 
 class Dao:
     SLUG = 'slug'
     ADDRESS = 'address'
     METADATA = 'metadata'
+    TOKENID = 'tokenid'
+    RARITY = 'rarity'
 
     def __init__(self):
         self.db = Database()
@@ -36,20 +41,50 @@ class Dao:
         else:
             return self.SLUG
 
-    def read_token_metadata(self, contract_address: str, tokenid: int):
-        return self.db.read_document(
+    def read_token_metadata(self, contract_address: str, tokenid: int) -> Optional[Metadata]:
+        metadata = self.db.read_document(
             directory_id=f"{self.METADATA}/{contract_address}",
             document_key=tokenid
         )
+        if metadata is not None:
+            return Metadata(metadata)
+        else:
+            return None
 
     def save_token_metadata(self, metadata: dict, contract_address: str, tokenid: int):
+        """For original metadata comming from the contract"""
+        metadata = self._clean_metadata(metadata)
+        metadata[self.TOKENID] = tokenid
+
         success = self.db.save_document(
             document=metadata,
             directory_id=f"{self.METADATA}/{contract_address}",
             document_key=str(tokenid)
         )
         if success:
-            self.logger.debug(f"Saved: {contract_address}:{tokenid} metadata")
+            self.logger.debug(f"Saved metadata: {contract_address}/{tokenid}")
+
+    def read_token_rarity(self, contract_address: str, tokenid: int) -> Optional[RarityInfo]:
+        rarity_info = self.db.read_document(
+            directory_id=f"{self.RARITY}/{contract_address}",
+            document_key=tokenid
+        )
+        if rarity_info is not None:
+            return RarityInfo(rarity_info)
+        else:
+            return None
+
+    def save_token_rarity(self, rarity_info: dict, contract_address: str, tokenid: int):
+        """For rarity information computed inhouse"""
+        rarity_info[self.TOKENID] = tokenid
+        success = self.db.save_document(
+            document=rarity_info,
+            directory_id=f"{self.RARITY}/{contract_address}",
+            document_key=str(tokenid)
+        )
+        if success:
+            self.logger.debug(f"Saved rarity: {contract_address}/{tokenid} ")
+
 
     def update_token_metadata(self, new_metadata: dict, collection: str, tokenid: int):
         pass
@@ -60,7 +95,7 @@ class Dao:
     def get_token_rarity_rank(self, collection: str, tokenid: int):
         pass
 
-    def get_token_fair_eth_price_estimation(self, collection: str, tokenid: int, listing_price:float):
+    def get_token_fair_eth_price_estimation(self, collection: str, tokenid: int, listing_price: float):
         pass
 
     def _slug_to_address(self, slug: str) -> str:
@@ -68,3 +103,15 @@ class Dao:
 
     def _address_to_slug(self, collection_address: str) -> str:
         pass
+
+    def _keys_to_ignore_from_metadata(self):
+        return ['description']
+
+    def _clean_metadata(self, metadata: dict) -> dict:
+        metadata_copy = metadata.copy()
+        for key in self._keys_to_ignore_from_metadata():
+            try:
+                del metadata_copy[key]
+            except:
+                pass
+        return metadata_copy

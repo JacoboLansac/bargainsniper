@@ -1,10 +1,10 @@
 from src.database import Dao
 
 class OpenseaCollection:
-    def __init__(self, collection_id:str):
+    def __init__(self, contract_address:str):
         self.dao = Dao()
-        self.id = collection_id
-        self.slug = self.dao.get_collectoin_slug(collection_id)
+        self.id = contract_address
+        self.slug = self.dao.get_collectoin_slug(contract_address)
         self.total_supply = 9999
 
     def token_ids(self) -> list:

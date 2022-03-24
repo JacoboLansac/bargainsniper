@@ -1,4 +1,5 @@
 import time
+import config
 from logging import getLogger
 from typing import Optional
 from src.database.dao import Dao
@@ -47,7 +48,7 @@ class Downloader:
             return []
 
         # todo: paralelize this with grequests or similar
-        urls = [(_tokenid, f"{base_uri}{_tokenid}") for _tokenid in range(offset, batchsize)]
+        urls = [(_tokenid, f"{base_uri}{_tokenid}") for _tokenid in range(offset, offset + batchsize)]
 
         batch_metadata = []
         for tokenid, url in urls:
@@ -67,13 +68,14 @@ class Downloader:
             self.logger.exception(f"Could not retrive totalSupply")
             return None
 
-    def download_collection_metadata_from_contract(self, batchsize=5):
+    def download_collection_metadata_from_contract(self, batchsize=20):
         self._connection_check()
         total_supply = self.get_collection_total_supply_from_contract()
         total_supply = total_supply or 10000
 
         btime = time.time()
         for offset in range(1, total_supply, batchsize):
+            self.logger.info(f"downloading tokenids: [{offset} -> {offset + batchsize}] [{self.contract_address}]")
 
             batch_metadata = self.download_batch_metadata_from_contract(offset=offset, batchsize=batchsize)
             for tokenid, token_metadata in batch_metadata:
@@ -81,5 +83,5 @@ class Downloader:
 
             # Download time estimations
             average_token_download_time = round((time.time() - btime) / (offset + batchsize), 3)
-            print(f"Average download time: {average_token_download_time} secs / token. "
+            self.logger.info(f"Average download time: {average_token_download_time} secs / token. "
                   f"Estimated time: {round(total_supply * average_token_download_time / 3600, 2)} hours")
