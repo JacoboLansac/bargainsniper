@@ -1,5 +1,6 @@
 from .database import Database
 from .metadata import Metadata
+from .opensea_collection import OpenseaCollection
 from .rarityinfo import RarityInfo
 from logging import getLogger
 from typing import Optional
@@ -85,15 +86,19 @@ class Dao:
         if success:
             self.logger.debug(f"Saved rarity: {contract_address}/{tokenid} ")
 
-
-    def update_token_metadata(self, new_metadata: dict, collection: str, tokenid: int):
-        pass
-
     def get_collection_address(self, collection: str) -> str:
         pass
 
     def get_token_rarity_rank(self, collection: str, tokenid: int):
-        pass
+        """
+        Returns the calculated rarity rank based on the estimated rarities
+        :param collection:
+        :param tokenid:
+        :return:
+        """
+        collection_address = self.get_collection_address(collection)
+        token_rarity = self.read_token_rarity(collection_address, tokenid)
+        return token_rarity.rarity_rank
 
     def get_token_fair_eth_price_estimation(self, collection: str, tokenid: int, listing_price: float):
         pass
