@@ -13,7 +13,7 @@ import requests
 # import grequests
 
 
-class Downloader:
+class MetadataDownloader:
     def __init__(self, contract_address: str, contract_abi: dict):
         self.dao = Dao()
         self.web3 = Web3(Web3.HTTPProvider(infura_https()))

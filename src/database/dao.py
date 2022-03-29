@@ -1,7 +1,7 @@
 from .database import Database
 from .metadata import Metadata
 from .opensea_collection import OpenseaCollection
-from .rarityinfo import RarityInfo
+from .rarity import Rarity
 from logging import getLogger
 from typing import Optional
 
@@ -65,13 +65,13 @@ class Dao:
         if success:
             self.logger.debug(f"Saved metadata: {contract_address}/{tokenid}")
 
-    def read_token_rarity(self, contract_address: str, tokenid: int) -> Optional[RarityInfo]:
+    def read_token_rarity(self, contract_address: str, tokenid: int) -> Optional[Rarity]:
         rarity_info = self.db.read_document(
             directory_id=f"{self.RARITY}/{contract_address}",
             document_key=tokenid
         )
         if rarity_info is not None:
-            return RarityInfo(rarity_info)
+            return Rarity(rarity_info)
         else:
             return None
 

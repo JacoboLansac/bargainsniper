@@ -1,7 +1,7 @@
 import traceback
 import time
 import jacotools as jtools
-from src.models.rarity_sniper import RaritySniper
+from deprecated.models.rarity_sniper import RaritySniper
 from jacotools import notificators
 
 if __name__ == '__main__':

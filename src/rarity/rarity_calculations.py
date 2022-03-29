@@ -13,7 +13,7 @@ from src.database import Dao
 from src.database import OpenseaCollection
 import config
 from src.database.metadata import Metadata
-from src.database.rarityinfo import RarityInfo
+from src.database.rarity import Rarity
 
 
 class RarityCalculator:
@@ -49,9 +49,9 @@ class RarityCalculator:
         traitsdf[self.TRAIT_LOG_FREQ] = np.log(trait_freqs)
         # Rarities is the product of all probabilities (lower product, more rarity)
         # np.log(traitsdf.groupby(Metadata.TOKENID)[self.TRAIT_FREQ].apply(np.prod))
-        raritiesdf = traitsdf.groupby(Metadata.TOKENID)[self.TRAIT_LOG_FREQ].sum().to_frame(RarityInfo.LOGPROBABILITY)
-        raritiesdf.sort_values(by=RarityInfo.LOGPROBABILITY, inplace=True)
-        raritiesdf[RarityInfo.RARITYRANK] = np.arange(1, len(raritiesdf) + 1)
+        raritiesdf = traitsdf.groupby(Metadata.TOKENID)[self.TRAIT_LOG_FREQ].sum().to_frame(Rarity.LOGPROBABILITY)
+        raritiesdf.sort_values(by=Rarity.LOGPROBABILITY, inplace=True)
+        raritiesdf[Rarity.RARITYRANK] = np.arange(1, len(raritiesdf) + 1)
         raritiesdf.sort_index(inplace=True)
         return raritiesdf
 

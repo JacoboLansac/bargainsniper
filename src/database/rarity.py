@@ -1,4 +1,4 @@
-class RarityInfo:
+class Rarity:
     PROBABILITY = "probability"
     LOGPROBABILITY = "logprobability"
     RARITY = "rarity"

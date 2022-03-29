@@ -4,8 +4,8 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from os import path
-from src.opensea_objects.opensea_asset import OpenseaAsset
-from src.opensea_objects.opensea_collection import OpenseaCollection
+from deprecated.opensea_objects.opensea_asset import OpenseaAsset
+from deprecated.opensea_objects.opensea_collection import OpenseaCollection
 import plotly.express as px
 import plotly.graph_objects as go
 import jacotools as jtools
