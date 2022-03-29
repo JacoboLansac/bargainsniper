@@ -9,3 +9,4 @@ uvicorn==0.17.6
 web3
 grequests
 python-dotenv
+pyyaml

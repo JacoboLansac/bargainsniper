@@ -39,6 +39,10 @@ class FilesDB:
         self.logger.error(f"Document not existing: {document_path}")
         return None
 
+    def list_documents(self, directory_id:str) -> list:
+        directory = self._directory_path(directory_id)
+        return os.listdir(directory)
+
     def exists_directory(self, directory_id: str) -> bool:
         return path.isdir(self._directory_path(directory_id))
 
@@ -53,3 +57,4 @@ class FilesDB:
 
     def _document_path(self, directory_id: str, document_key: str):
         return path.join(self._directory_path(directory_id), str(document_key))
+

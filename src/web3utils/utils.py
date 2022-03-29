@@ -1,5 +1,8 @@
 from dotenv import load_dotenv
+from os import path
 import os
+import json
+from config import project_path
 
 load_dotenv()
 
@@ -10,3 +13,6 @@ def infura_https():
         raise ValueError("WEB3_INFURA_PROJECT_ID is None")
     return f"https://mainnet.infura.io/v3/{infura_project_id}"
 
+
+def get_abi(collection_slug: str):
+    return json.load(open(path.join(project_path, f"resources/abis/{collection_slug}_abi.json"), "r"))

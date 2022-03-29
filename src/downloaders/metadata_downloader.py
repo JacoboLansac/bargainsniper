@@ -2,7 +2,7 @@ import time
 import config
 from logging import getLogger
 from typing import Optional
-from src.database.dao import Dao
+from src.database.dao_metadata import DaoMetadata
 from src.web3utils import infura_https
 from web3 import Web3
 import re
@@ -15,7 +15,7 @@ import requests
 
 class MetadataDownloader:
     def __init__(self, contract_address: str, contract_abi: dict):
-        self.dao = Dao()
+        self.dao = DaoMetadata()
         self.web3 = Web3(Web3.HTTPProvider(infura_https()))
         self.logger = getLogger(self.__class__.__name__)
         self.contract_address = contract_address
@@ -68,13 +68,22 @@ class MetadataDownloader:
             self.logger.exception(f"Could not retrive totalSupply")
             return None
 
-    def download_collection_metadata_from_contract(self, batchsize=20):
+    def download_collection_metadata_from_contract(self, batchsize=20, force_full_download=False):
         self._connection_check()
         total_supply = self.get_collection_total_supply_from_contract()
         total_supply = total_supply or 10000
 
+        if force_full_download:
+            start_token_id = 1
+        else:
+            already_downloaded_tokenids = self.dao.list_available_tokenids(self.contract_address)
+            if already_downloaded_tokenids:
+                start_token_id = int(max(already_downloaded_tokenids))
+            else:
+                start_token_id = 1
+
         btime = time.time()
-        for offset in range(1, total_supply, batchsize):
+        for offset in range(start_token_id, total_supply, batchsize):
             self.logger.info(f"downloading tokenids: [{offset} -> {offset + batchsize}] [{self.contract_address}]")
 
             batch_metadata = self.download_batch_metadata_from_contract(offset=offset, batchsize=batchsize)
