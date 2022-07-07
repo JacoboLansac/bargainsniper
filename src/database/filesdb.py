@@ -41,7 +41,10 @@ class FilesDB:
 
     def list_documents(self, directory_id:str) -> list:
         directory = self._directory_path(directory_id)
-        return os.listdir(directory)
+        try:
+            return os.listdir(directory)
+        except:
+            return []
 
     def exists_directory(self, directory_id: str) -> bool:
         return path.isdir(self._directory_path(directory_id))

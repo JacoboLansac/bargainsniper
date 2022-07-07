@@ -1,6 +1,6 @@
 import pandas as pd
-
-from src.database.dao_opensea import DaoOpensea
+from typing import Optional
+from src.database.dao_opensea import OpenseaDao
 from src.database.dao_rarity import DaoRarity
 from src.database.dao_listing import DaoListing
 from logging import getLogger
@@ -12,7 +12,7 @@ from src.database.rarity import Rarity
 
 class OpenseaListener:
     def __init__(self):
-        self.marketplace = DaoOpensea()
+        self.NFTmarketplace = OpenseaDao()
         self.daorarity = DaoRarity()
         self.daolistings = DaoListing()
         self.logger = getLogger(self.__class__.__name__)
@@ -30,10 +30,10 @@ class OpenseaListener:
     def notify(self, bargain_tokenids: list):
         pass
 
-    def run(self, contract_address:str):
+    def run(self, contract_address:str, last_timestamp:Optional[int]):
 
         # Get listings from opensea (since when? I need to store last time we retrieved listings)
-        # listings = self.marketplace.get_listings(collection_slug=contract_address)
+        listings = self.NFTmarketplace.get_listings(collection_slug=contract_address)
         listings = [Listing({}), Listing({}), Listing({}), ]
 
         if not listings:

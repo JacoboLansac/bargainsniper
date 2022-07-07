@@ -82,15 +82,29 @@ class MetadataDownloader:
             else:
                 start_token_id = 1
 
+        n_attemps = 3
         btime = time.time()
         for offset in range(start_token_id, total_supply, batchsize):
-            self.logger.info(f"downloading tokenids: [{offset} -> {offset + batchsize}] [{self.contract_address}]")
+            attempt = 0
+            success = False
+            while not success:
+                try:
+                    self.logger.info(f"downloading tokenids: [{offset} -> {offset + batchsize}] [{self.contract_address}]")
 
-            batch_metadata = self.download_batch_metadata_from_contract(offset=offset, batchsize=batchsize)
-            for tokenid, token_metadata in batch_metadata:
-                self.dao.save_token_metadata(token_metadata, self.contract_address, tokenid)
+                    batch_metadata = self.download_batch_metadata_from_contract(offset=offset, batchsize=batchsize)
+                    for tokenid, token_metadata in batch_metadata:
+                        self.dao.save_token_metadata(token_metadata, self.contract_address, tokenid)
 
-            # Download time estimations
-            average_token_download_time = round((time.time() - btime) / (offset + batchsize), 3)
-            self.logger.info(f"Average download time: {average_token_download_time} secs / token. "
-                  f"Estimated time: {round(total_supply * average_token_download_time / 3600, 2)} hours")
+                    # Download time estimations
+                    average_token_download_time = round((time.time() - btime) / (offset + batchsize), 3)
+                    self.logger.info(f"Average download time: {average_token_download_time} secs / token. "
+                          f"Estimated time: {round(total_supply * average_token_download_time / 3600, 2)} hours")
+
+                    success = True
+
+                except:
+                    if attempt < n_attemps:
+                        attempt += 1
+                        time.sleep(30)
+                    else:
+                        raise Exception(f"Could not download offset={offset} after {n_attemps} attempts")
