@@ -135,3 +135,4 @@ deployments/*
 dev/*
 filebase/*
 worknotes/*
+resources/abis/*
