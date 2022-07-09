@@ -36,7 +36,6 @@ class FilesDB:
             except:
                 self.logger.exception(f"Could not read document: {document_path}")
                 return None
-        self.logger.error(f"Document not existing: {document_path}")
         return None
 
     def list_documents(self, directory_id:str) -> list:

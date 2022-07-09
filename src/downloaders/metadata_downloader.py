@@ -8,19 +8,25 @@ from web3 import Web3
 import re
 import web3.exceptions
 import requests
-
+from src.downloaders.abi_manager import AbiManager
 
 # import grequests
 
 
 class MetadataDownloader:
-    def __init__(self, contract_address: str, contract_abi: dict):
+    def __init__(self, contract_address: str):
         self.dao = DaoMetadata()
         self.web3 = Web3(Web3.HTTPProvider(infura_https()))
         self.logger = getLogger(self.__class__.__name__)
+
+        abi_manager = AbiManager()
+
         self.contract_address = contract_address
-        self.contract_abi = contract_abi
-        self.contract = self.web3.eth.contract(address=self.contract_address, abi=self.contract_abi)
+        self.contract_abi = abi_manager.read_abi(contract_address)
+
+        self.contract = self.web3.eth.contract(
+            address=self.web3.toChecksumAddress(self.contract_address),
+            abi=self.contract_abi)
 
     def _connection_check(self):
         if not self.web3.isConnected():
@@ -56,7 +62,7 @@ class MetadataDownloader:
             if response.status_code == 200:
                 batch_metadata.append((tokenid, response.json()))
             else:
-                print(f"Could not retrieve metadata: {response.reason}")
+                self.logger.error(f"Could not retrieve metadata for tokenid={tokenid}: {response.reason}")
         return batch_metadata
 
     def get_collection_total_supply_from_contract(self) -> (int, None):
@@ -77,6 +83,7 @@ class MetadataDownloader:
             start_token_id = 1
         else:
             already_downloaded_tokenids = self.dao.list_available_tokenids(self.contract_address)
+
             if already_downloaded_tokenids:
                 start_token_id = int(max(already_downloaded_tokenids))
             else:
@@ -85,13 +92,21 @@ class MetadataDownloader:
         n_attemps = 3
         btime = time.time()
         for offset in range(start_token_id, total_supply, batchsize):
+
+            batchsize = min(batchsize, total_supply - start_token_id)
             attempt = 0
             success = False
+
             while not success:
                 try:
                     self.logger.info(f"downloading tokenids: [{offset} -> {offset + batchsize}] [{self.contract_address}]")
 
                     batch_metadata = self.download_batch_metadata_from_contract(offset=offset, batchsize=batchsize)
+
+                    if not batch_metadata:
+                        self.logger.info(f"Not a single tokenId returned metadata. Jumping to next")
+                        break
+
                     for tokenid, token_metadata in batch_metadata:
                         self.dao.save_token_metadata(token_metadata, self.contract_address, tokenid)
 
@@ -108,3 +123,10 @@ class MetadataDownloader:
                         time.sleep(30)
                     else:
                         raise Exception(f"Could not download offset={offset} after {n_attemps} attempts")
+
+        # Download the missing ones
+        already_downloaded_tokenids = self.dao.list_available_tokenids(self.contract_address)
+        missing = [tokenid for tokenid in range(total_supply) if tokenid not in already_downloaded_tokenids]
+
+        # TODO: do a smart round of downloading missing ones
+

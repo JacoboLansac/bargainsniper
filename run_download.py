@@ -1,18 +1,22 @@
 import os
+from os import path
 import json
 from src.downloaders import MetadataDownloader
 from src.rarity import RarityCalculator
 import config
 from src.web3utils.utils import get_abi
+from logging import getLogger
+
+logger = getLogger(path.basename(__file__))
 
 if __name__ == '__main__':
 
-    for collection_slug, collection_address in config.collections['Opensea'].items():
+    for name, collection_address in config.collections['Opensea'].items():
+        logger.info(f"Starting download: [{name}][{collection_address}]")
         contract_address = collection_address
-        contract_abi = get_abi(collection_slug)  # this should be done based on the contract, not slug
 
         # Download metadata from
-        downloader = MetadataDownloader(contract_address, contract_abi)
+        downloader = MetadataDownloader(contract_address)
         downloader.download_collection_metadata_from_contract()
 
         rarity_calculator = RarityCalculator(contract_address)
