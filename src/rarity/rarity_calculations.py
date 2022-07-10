@@ -37,6 +37,10 @@ class RarityCalculator:
                 attr.update({Metadata.TOKENID: tokenid})
                 collection_attributes.append(attr)
 
+        if not collection_attributes:
+            self.logger.exception(f"collection attributes df is empty")
+            return pd.DataFrame()
+
         traitsdf = pd.DataFrame(collection_attributes)
         traitsdf['count'] = 1
         traitsdf.set_index([Metadata.TRAIT_TYPE, Metadata.TRAIT_VALUE], inplace=True)

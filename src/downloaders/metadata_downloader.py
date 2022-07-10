@@ -10,6 +10,7 @@ import web3.exceptions
 import requests
 from src.downloaders.abi_manager import AbiManager
 
+
 # import grequests
 
 
@@ -30,25 +31,36 @@ class MetadataDownloader:
 
     def _connection_check(self):
         if not self.web3.isConnected():
-            raise ConnectionError("Not connected to web3")
+            self.logger.exception("Not connected to web3")
 
-    def infer_base_uri(self) -> Optional[str]:
+    def get_base_uri(self) -> Optional[str]:
         try:
-            return self.contract.functions.baseURI().call()
+            baseURI = self.contract.functions.baseURI().call()
         except web3.exceptions.ABIFunctionNotFound:
-            try:
-                tokenId = 123
-                tokenURI1 = self.contract.functions.tokenURI(tokenId).call()
-                if tokenURI1.endswith(str(tokenId)):
-                    return re.sub(str(tokenId) + '$', '', tokenURI1)
-                else:
-                    return None
-            except web3.exceptions.ABIFunctionNotFound:
+            baseURI = self._infer_base_uri_from_tokenURI()
+
+        if baseURI is None:
+            self.logger.exception(f"baseURI is None, all methods failed")
+            return None
+
+        if baseURI.startswith('ipfs://'):
+            baseURI = 'https://gateway.pinata.cloud/ipfs/' + baseURI.split('ipfs://')[-1]
+
+        return baseURI
+
+    def _infer_base_uri_from_tokenURI(self, tokenId=1):
+        try:
+            tokenURI1 = self.contract.functions.tokenURI(tokenId).call()
+            if tokenURI1.endswith(str(tokenId)):
+                return re.sub(str(tokenId) + '$', '', tokenURI1)
+            else:
                 return None
+        except web3.exceptions.ABIFunctionNotFound:
+            return None
 
     def download_batch_metadata_from_contract(self, offset: int, batchsize: int) -> list:
         self._connection_check()
-        base_uri = self.infer_base_uri()
+        base_uri = self.get_base_uri()
         if base_uri is None:
             self.logger.exception(f"base_uri could not be inferred")
             return []
@@ -67,18 +79,22 @@ class MetadataDownloader:
 
     def get_collection_total_supply_from_contract(self) -> (int, None):
         self._connection_check()
-        # todo: perhaps redo this using brownie
         try:
             return self.contract.functions.totalSupply().call()
         except web3.exceptions.ABIFunctionNotFound:
-            self.logger.exception(f"Could not retrive totalSupply")
+            self.logger.exception(f"Could not retrieve totalSupply")
             return None
 
     def download_collection_metadata_from_contract(self, batchsize=20, force_full_download=False):
         self._connection_check()
         total_supply = self.get_collection_total_supply_from_contract()
-        total_supply = total_supply or 10000
 
+        if total_supply is None:
+            total_supply = config.collections['maxSupply']
+        else:
+            total_supply = min(total_supply, config.collections['maxSupply'])
+
+        self.logger.info(f'Total supply to download: {total_supply}')
         if force_full_download:
             start_token_id = 1
         else:
@@ -99,7 +115,8 @@ class MetadataDownloader:
 
             while not success:
                 try:
-                    self.logger.info(f"downloading tokenids: [{offset} -> {offset + batchsize}] [{self.contract_address}]")
+                    self.logger.info(
+                        f"downloading tokenids: [{offset} -> {offset + batchsize}] [{self.contract_address}]")
 
                     batch_metadata = self.download_batch_metadata_from_contract(offset=offset, batchsize=batchsize)
 
@@ -113,7 +130,7 @@ class MetadataDownloader:
                     # Download time estimations
                     average_token_download_time = round((time.time() - btime) / (offset + batchsize), 3)
                     self.logger.info(f"Average download time: {average_token_download_time} secs / token. "
-                          f"Estimated time: {round(total_supply * average_token_download_time / 3600, 2)} hours")
+                                     f"Estimated time: {round(total_supply * average_token_download_time / 3600, 2)} hours")
 
                     success = True
 
@@ -122,11 +139,11 @@ class MetadataDownloader:
                         attempt += 1
                         time.sleep(30)
                     else:
-                        raise Exception(f"Could not download offset={offset} after {n_attemps} attempts")
+                        self.logger.exception(f"Could not download offset={offset} after {n_attemps} attempts")
+                        break
 
         # Download the missing ones
         already_downloaded_tokenids = self.dao.list_available_tokenids(self.contract_address)
         missing = [tokenid for tokenid in range(total_supply) if tokenid not in already_downloaded_tokenids]
 
         # TODO: do a smart round of downloading missing ones
-
