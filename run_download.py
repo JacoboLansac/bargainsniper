@@ -11,6 +11,9 @@ logger = getLogger(path.basename(__file__))
 
 if __name__ == '__main__':
 
+    logger.info(f"Configured collections to download:")
+    [logger.info(f"\t{address}\t[{name}]") for name, address in config.collections['Opensea'].items()]
+
     for name, collection_address in config.collections['Opensea'].items():
         logger.info(f"Starting download: [{name}][{collection_address}]")
         contract_address = collection_address
