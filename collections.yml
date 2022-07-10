@@ -13,7 +13,7 @@ test:
     cyberkongz: "0x57a204aa1042f6e66dd7730813f4024114d74f37"
 
 prod:
-  maxSupply: 10000
+  maxSupply: 15000
   Opensea:
     nuclearnerds: "0x0F78C6eEE3C89Ff37fD9ef96bD685830993636F2"
     azuki: "0xED5AF388653567Af2F388E6224dC7C4b3241C544"
