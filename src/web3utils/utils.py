@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 from os import path
 import os
 import json
-from config import project_path
+from bconfig import project_path
 
 load_dotenv()
 

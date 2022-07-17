@@ -1,6 +1,7 @@
 test:
-  maxSupply: 50
+  maxSupply: 15000
   Opensea:
+    azuki: "0xed5af388653567af2f388e6224dc7c4b3241c544"
     bayc: "0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d"
     mayc: "0x60e4d786628fea6478f785a6d7e704777c86a7c6"
     otherdeed: "0x34d85c9cdeb23fa97cb08333b511ac86e1c4e258"
@@ -15,8 +16,8 @@ test:
 prod:
   maxSupply: 15000
   Opensea:
-    nuclearnerds: "0x0F78C6eEE3C89Ff37fD9ef96bD685830993636F2"
-    azuki: "0xED5AF388653567Af2F388E6224dC7C4b3241C544"
+    nuclearnerds: "0x0f78c6eee3c89ff37fd9ef96bd685830993636f2"
+    azuki: "0xed5af388653567af2f388e6224dc7c4b3241c544"
     bayc: "0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d"
     mayc: "0x60e4d786628fea6478f785a6d7e704777c86a7c6"
     otherdeed: "0x34d85c9cdeb23fa97cb08333b511ac86e1c4e258"

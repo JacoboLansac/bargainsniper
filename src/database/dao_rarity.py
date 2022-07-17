@@ -3,6 +3,7 @@ from typing import List, Optional
 from logging import getLogger
 from .database import Database
 from .rarity import Rarity
+from os import path
 
 
 class DaoRarity:
@@ -18,6 +19,9 @@ class DaoRarity:
 
     def is_collection_available(self, contract_address: str) -> bool:
         return self.db.exists_directory(self.collection_directory_id(contract_address))
+
+    def list_available_collections(self):
+        return self.db.list_directories(self.RARITY)
 
     def read_token_rarity(self, contract_address: str, tokenid: int) -> Optional[Rarity]:
         rarity_info = self.db.read_document(

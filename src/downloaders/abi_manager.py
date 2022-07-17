@@ -3,7 +3,7 @@ from os import path
 import os
 import requests
 from logging import getLogger
-import config
+import bconfig
 import json
 
 dotenv.load_dotenv()
@@ -23,7 +23,7 @@ class AbiManager:
         return abi
 
     def get_abi_path(self, contract_address: str):
-        return path.join(config.project_path, 'resources', 'abis', contract_address)
+        return path.join(bconfig.project_path, 'resources', 'abis', contract_address)
 
     def _download_abi_from_etherscan(self, contract_address: str) -> (str, None):
         self.logger.info(f"Downloading abi for {contract_address}")

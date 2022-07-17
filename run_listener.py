@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import time
 import os
-import config
+import bconfig
 from src.listener import OpenseaListener
 
 listener = OpenseaListener()

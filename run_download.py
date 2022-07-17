@@ -3,7 +3,7 @@ from os import path
 import json
 from src.downloaders import MetadataDownloader
 from src.rarity import RarityCalculator
-import config
+import bconfig
 from src.web3utils.utils import get_abi
 from logging import getLogger
 
@@ -13,9 +13,9 @@ if __name__ == '__main__':
 
     logger.critical(f"Starting downloads")
     logger.info(f"Configured collections to download:")
-    [logger.info(f"\t{address}\t[{name}]") for name, address in config.collections['Opensea'].items()]
+    [logger.info(f"\t{address}\t[{name}]") for name, address in bconfig.collections['Opensea'].items()]
 
-    for name, collection_address in config.collections['Opensea'].items():
+    for name, collection_address in bconfig.collections['Opensea'].items():
         logger.info(f"Starting download: [{name}][{collection_address}]")
         contract_address = collection_address
 

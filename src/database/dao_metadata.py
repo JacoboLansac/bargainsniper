@@ -1,8 +1,11 @@
+import os
+
 from .database import Database
 from .metadata import Metadata
 from .rarity import Rarity
 from logging import getLogger
 from typing import Optional, List
+import os
 
 
 class DaoMetadata:
@@ -15,6 +18,9 @@ class DaoMetadata:
 
     def collection_directory_id(self, contract_address: str) -> str:
         return f"{self.METADATA}/{contract_address}"
+
+    def list_available_collections(self):
+        return self.db.list_directories(self.METADATA)
 
     def is_collection_available(self, contract_address: str) -> bool:
         return self.db.exists_directory(self.collection_directory_id(contract_address))

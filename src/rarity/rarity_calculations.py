@@ -11,7 +11,7 @@ import logging
 import numpy as np
 from src.database import Dao
 from src.database import OpenseaCollection
-import config
+import bconfig
 from src.database.metadata import Metadata
 from src.database.rarity import Rarity
 

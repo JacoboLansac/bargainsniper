@@ -136,3 +136,4 @@ dev/*
 filebase/*
 worknotes/*
 resources/abis/*
+data/

@@ -1,5 +1,5 @@
 import time
-import config
+import bconfig
 from logging import getLogger
 from typing import Optional
 from src.database.dao_metadata import DaoMetadata
@@ -22,7 +22,7 @@ class MetadataDownloader:
 
         abi_manager = AbiManager()
 
-        self.contract_address = contract_address
+        self.contract_address = contract_address.lower()
         self.contract_abi = abi_manager.read_abi(contract_address)
 
         self.contract = self.web3.eth.contract(
@@ -90,9 +90,9 @@ class MetadataDownloader:
         total_supply = self.get_collection_total_supply_from_contract()
 
         if total_supply is None:
-            total_supply = config.collections['maxSupply']
+            total_supply = bconfig.collections['maxSupply']
         else:
-            total_supply = min(total_supply, config.collections['maxSupply'])
+            total_supply = min(total_supply, bconfig.collections['maxSupply'])
 
         self.logger.info(f'Total supply to download: {total_supply}')
         if force_full_download:

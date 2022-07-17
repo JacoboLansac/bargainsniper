@@ -2,14 +2,14 @@ import os
 from typing import Optional
 import json
 from logging import getLogger
-import config
+import bconfig
 from os import path
 
 
 class FilesDB:
     def __init__(self):
         self.logger = getLogger(self.__class__.__name__)
-        self.rootpath = config.filesdb_rootpath
+        self.rootpath = bconfig.filesdb_rootpath
 
     def save_document(self, document: dict, directory_id: str, document_key: (int, str), overwrite=True) -> bool:
         if not self.create_directory(directory_id):
@@ -30,6 +30,7 @@ class FilesDB:
 
     def read_document(self, directory_id: str, document_key: (str, int)) -> Optional[dict]:
         document_path = self._document_path(directory_id, document_key)
+        print(f"Isfile {document_path}: {path.isfile(document_path)}")
         if path.isfile(document_path):
             try:
                 return json.load(open(document_path, 'r'))
@@ -44,6 +45,10 @@ class FilesDB:
             return os.listdir(directory)
         except:
             return []
+
+    def list_directories(self, directory_id:str) -> list:
+        directory = self._directory_path(directory_id)
+        return os.listdir(directory)
 
     def exists_directory(self, directory_id: str) -> bool:
         return path.isdir(self._directory_path(directory_id))

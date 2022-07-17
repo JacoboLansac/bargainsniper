@@ -1,3 +1,15 @@
+"""
+HOW TO:
+
+In order to run the flask api:
+1. export the name of the FLASK api as a environment variable:
+    export FLASK_APP=flaskapi
+2. in terminal, run the application with the host as an input
+    flask run --host=0.0.0.0
+
+
+"""
+
 from flask import Flask
 from src.database import Dao
 import logging
